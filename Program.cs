@@ -17,13 +17,25 @@ internal class Program
         Oggetto m3 = new Oggetto(7e22, v3);
         Oggetto m4 = new Oggetto(7e22, v4);
 
-        double from1_2 = v1.Distanza(v2) * v1.Distanza(v2);
-        double from1_3 = v1.Distanza(v3) * v1.Distanza(v3);
-        double from1_4 = v1.Distanza(v4) * v1.Distanza(v4);
+        double angoloRad = v1.AngoloRad(v3);
 
-        double forza = G * ((m1.Massa * m2.Massa) / from1_2 + (m1.Massa * m3.Massa) / from1_3 + (m1.Massa * m4.Massa) / from1_4);
+        double d1_2 = v1.Distanza(v2);
+        double d1_3 = v1.Distanza(v3);
+        double d1_4 = v1.Distanza(v4);
 
-        Console.WriteLine($"Forza totale = {forza} N");
+        //Fx = F1_2 + F1_3*cos(angolo)
+        double forzax = G * m1.Massa * m2.Massa * ((1 / d1_2) + (1 / d1_3) * Math.Cos(angoloRad));
+
+        //Fy = F1_4 + F1_3*sin(angolo)
+        double forzay = G * m1.Massa * m2.Massa * ((1 / d1_4) + (1 / d1_3) * Math.Sin(angoloRad));
+
+        //Ftot = sqrt(Fx^2+Fy^2)
+        double forzatotale = Math.Sqrt(Math.Pow(forzax, 2) + Math.Pow(forzay, 2));
+
+        Console.WriteLine($"Fx = {forzax} N");
+        Console.WriteLine($"Fy = {forzay} N");
+        Console.WriteLine($"Ftot = {forzatotale}");
+
 
         Console.ReadKey();
     }
@@ -52,6 +64,21 @@ public class Vettore
         Y = y;
     }
 
+    public double Distanza(Vettore other)
+    {
+        double dx = other.X - X;
+        double dy = other.Y - Y;
+        return Math.Pow(dx, 2) + Math.Pow(dy, 2);
+    }
+
+    public double AngoloRad(Vettore other)
+    {
+
+        double dx = other.X - X;
+        double dy = other.Y - Y;
+        return Math.Atan(dy / dx);
+    }
+
     public static Vettore Parse(string s)
     {
         string[] subs = s.Split(';');
@@ -72,19 +99,6 @@ public class Vettore
             v = null;
             return false;
         }
-    }
-
-    public double Distanza(Vettore other)
-    {
-        double dx = other.X - X;
-        double dy = other.Y - Y;
-        double distanzainclinata = Math.Sqrt(dx * dx + dy * dy);
-        return distanzainclinata;
-    }
-
-    public static double Risultante(Vettore v)
-    {
-        return Math.Sqrt(Math.Pow(v.X, 2) + Math.Pow(v.Y, 2));
     }
 
     public static Vettore operator +(Vettore v)
